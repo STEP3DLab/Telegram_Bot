@@ -1,0 +1,26 @@
+name: Web CI
+
+on:
+  push:
+    paths:
+      - 'packages/web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm --filter web build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_dir: packages/web/dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
