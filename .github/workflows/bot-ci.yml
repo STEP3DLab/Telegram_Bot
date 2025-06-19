@@ -1,0 +1,29 @@
+name: Bot CI
+
+on:
+  push:
+    paths:
+      - 'packages/bot/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: STEP3DLab/Telegram_Bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm --filter bot test
+      - run: pnpm --filter bot lint
+      - run: pnpx wrangler deploy --env production
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
